@@ -1,0 +1,88 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.3.0
+Date: 2020-10-12 
+  Features:
+    - hover mode needs spice (if mod Nauvis Melanche is present) or coal alternatively
+    - to use this mod as before, activate the cheat mode in map settings
+    - add interface "Kux-Running" "getIsEnabled" 
+---------------------------------------------------------------------------------------------------
+Version: 1.2.7
+Date: 2020-10-11  
+  Optimizations:
+    - Space Exploration compatibility: in space free fall (tile = 'se-space') hover and acceleration will be ignored.
+    - mode hover: optimize use of character_running_speed_modifier.
+    - mode hover: avoid jumping back if walking is faster as teleport
+---------------------------------------------------------------------------------------------------
+Version: 1.2.6
+Date: 2020-10-09
+  Bugfixes:
+    - FIX crash on new game: no character
+---------------------------------------------------------------------------------------------------
+Version: 1.2.5
+Date: 2020-10-07
+  Bugfixes:
+    - FIX walking state, player not walking after load
+---------------------------------------------------------------------------------------------------
+Version: 1.2.4
+Date: 2020-10-07
+  Optimisations:
+    - adaptive update frequency
+    - cache configuration values
+---------------------------------------------------------------------------------------------------
+Version: 1.2.3
+Date: 2020-10-06
+  Changes:
+    - colored flying text
+  Bugfixes:
+    - FIX global disable
+---------------------------------------------------------------------------------------------------
+Version: 1.2.3
+Date: 2020-10-06
+  Changes:
+    - move some variables into global
+  Bugfixes:
+    - FIX LuaSettings doesn't contain key getDefaultCharacterRunningSpeedModifier.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.2
+Date: 2020-10-06
+  Bugfixes:
+    - FIX no character
+---------------------------------------------------------------------------------------------------
+Version: 1.2.1
+Date: 2020-10-06
+  Features:
+    - settings: Zoom Speed Modificator
+---------------------------------------------------------------------------------------------------
+Version: 1.2.0
+Date: 2020-10-06
+  Features:
+    - Hover mode => no more obstacles
+    - Mode selection in user settings: None, Accelerate, Hover, Zoom
+    - walking speed accelerated (settings mode: Accelerate or Hover)
+    - walking speed depending on zoom level (settings mode: Zoom) + Hover
+---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2020-10-02
+  Features:
+    - Mode selection in user settings: None, Accelerate, Zoom
+    - walking speed accelerated (settings Mode: Accelerate)
+    - walking speed depending on zoom level (settings Mode: Zoom)
+---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+Date: 2020-10-01
+  Changes:
+    - info.json try to fix the missing description
+---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2020-10-01
+  Changes:
+    - info.json compatibility list and description
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2020-09-30
+  Info:
+    - firt public version
+  Locale:
+    - English
+  License:
+    - MIT

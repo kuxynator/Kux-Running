@@ -1,0 +1,17 @@
+{
+	"name": "Kux-Running",
+	"version": "1.3.0",
+	"title": "Kuxynator's Running mod",
+	"author": "Kuxynator",	
+	"homepage": "https://fb.me/kuxynator.factorio",
+	"factorio_version": "1.0",
+	"dependencies": [
+		"base >= 1.0",
+		"? Kux-Zooming >= 1.2.0",
+		"? nauvis-melange > 0.8.0",
+		"! RunSpeedToggle",
+		"! ProgressiveRunning",
+		"! ProgressiveRunningRevived"
+	],
+	"description": "Walk with smooth acceleration or cheat something: sprint in turbo mode, be faster if you zoom out, or ignore all obstacles in hover mode."
+}

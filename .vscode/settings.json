@@ -1,0 +1,17 @@
+{
+	"Lua.diagnostics.globals": [
+		"defines",
+		"game",
+		"global",
+		"script",
+		"remote",
+		"data",
+		"settings",
+		"iif",
+		"control",
+		"session",
+		"modules",
+		"serpent",
+		"try"
+	]
+}
