@@ -1,13 +1,48 @@
 ---------------------------------------------------------------------------------------------------
-Version: 1.3.0
-Date: 2020-10-12 
+Version: 1.5.0
+Date: 2020-10-17
   Features:
-    - hover mode needs spice (if mod Nauvis Melanche is present) or coal alternatively
+    - configurable speed table
+    - activatable adaption to game speed
+    - UPS correction factor
+    - Toggle Zoom mode (Z-key)
+    - Toogle hover in Zoom mode (H-key)
+  Optimizations:
+    - tile walking moifier, movement bonus uses event instead polling
+    - Factorissimo2 compatibilty: check 'out of factory' in mode hover
+    - some refactoring
+---------------------------------------------------------------------------------------------------
+Version: 1.4.1
+Date: 2020-10-16
+  Optimizations:
+    - acceleration:
+      - calculation now based on speed and not more on walking speed modifier
+      - 15 ticks slow speed then 60 ticks accelerating until max speed
+      - Speed table {1, 2, 5} in base speed units. base speed is 0.15 tiles/tick
+  Bugfixes:
+    - Changelog view in Factorio. Thanks to Omnifarious.
+    - Nauvis Melanche integration: spice will be consumed again if needed.
+---------------------------------------------------------------------------------------------------
+Version: 1.4.0
+Date: 2020-10-14
+  Features:
+    - turbo mode needs spice (if mod Nauvis Melanche is active) or coal alternatively
+    - deeper integration with Nauvis Melanche (if active)
+  Bugfixes:
+    - fix localized strings
+    - remove version in optional dependencies
+    - disable log in onTick
+    - fix the bug in MP onTick
+---------------------------------------------------------------------------------------------------
+Version: 1.3.0
+Date: 2020-10-12
+  Features:
+    - hover mode needs spice (if mod Nauvis Melanche is active) or coal alternatively
     - to use this mod as before, activate the cheat mode in map settings
     - add interface "Kux-Running" "getIsEnabled" 
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.7
-Date: 2020-10-11  
+Date: 2020-10-11
   Optimizations:
     - Space Exploration compatibility: in space free fall (tile = 'se-space') hover and acceleration will be ignored.
     - mode hover: optimize use of character_running_speed_modifier.
@@ -33,14 +68,9 @@ Version: 1.2.3
 Date: 2020-10-06
   Changes:
     - colored flying text
-  Bugfixes:
-    - FIX global disable
----------------------------------------------------------------------------------------------------
-Version: 1.2.3
-Date: 2020-10-06
-  Changes:
     - move some variables into global
   Bugfixes:
+    - FIX global disable
     - FIX LuaSettings doesn't contain key getDefaultCharacterRunningSpeedModifier.
 ---------------------------------------------------------------------------------------------------
 Version: 1.2.2

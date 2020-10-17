@@ -1,14 +1,14 @@
 {
 	"name": "Kux-Running",
-	"version": "1.3.0",
+	"version": "1.5.0",
 	"title": "Kuxynator's Running mod",
 	"author": "Kuxynator",	
 	"homepage": "https://fb.me/kuxynator.factorio",
 	"factorio_version": "1.0",
 	"dependencies": [
 		"base >= 1.0",
-		"? Kux-Zooming >= 1.2.0",
-		"? nauvis-melange > 0.8.0",
+		"? Kux-Zooming",
+		"? nauvis-melange",
 		"! RunSpeedToggle",
 		"! ProgressiveRunning",
 		"! ProgressiveRunningRevived"

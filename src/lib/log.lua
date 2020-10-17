@@ -1,12 +1,24 @@
-local function isEnabled()
-	return game.get_player(1).mod_settings["Kux-Running_debug"].value
-end
 local this = nil
---- Deug module
--- @module debug
-modules.debug = {
+--- Log module
+-- @module log
+modules.log = {
 
-	modName = "not specified",
+	getIsEnabled = function ()
+		local entry = settings.global[script.mod_name.."_EnableLog"]
+		if entry == nil then return false end
+		return entry.value
+	end,
+
+	--- to debug bootstraap set isEnabled to true
+	isEnabled = false,
+
+	onSettingsChanged = function()
+		this.isEnabled = this.getIsEnabled()
+	end,
+
+	onLoaded = function(e)
+		this.onSettingsChanged()
+	end,
 
 	joinArgs = function (...)
 		local msg = ""
@@ -18,8 +30,22 @@ modules.debug = {
 		end
 	end,
 
+	trace = function(...)
+		if not this.isEnabled then return end
+
+		local msg = script.mod_name..": "
+		for i = 1, select("#",...) do
+			local v = select(i,...)
+			if v == nil then v = "{nil}"
+			else v = tostring(v) end
+			msg = msg .. v
+		end
+		print(msg)
+	end,
+
 	print = function(...)
-		--print(this.joinArgs(...)) does not work
+		if not this.isEnabled then return end
+
 		local msg = ""
 		for i = 1, select("#",...) do
 			local v = select(i,...)
@@ -30,12 +56,8 @@ modules.debug = {
 		print(msg)
 	end,
 
-	onSettingsChanged = function()
-		--
-	end,
-
-	trace = function(...)
-		if not isEnabled() then return end
+	userTrace = function(...)
+		if not this.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -47,8 +69,8 @@ modules.debug = {
 		game.get_player(1).print(msg, {r = 0.7, g = 0.7, b = 0.7, a = 1})
 	end,
 
-	warning = function(...)
-		if not isEnabled() then return end
+	userWarning = function(...)
+		if not this.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -60,8 +82,8 @@ modules.debug = {
 		game.get_player(1).print(msg, {r = 1, g = 1, b = 0, a = 1})
 	end,
 
-	error = function(...)
-		if not isEnabled() then return end
+	userError = function(...)
+		if not this.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -74,5 +96,5 @@ modules.debug = {
 	end
 }
 
-this = modules.debug --init local this
+this = modules.log --init local this
 return this

@@ -1,4 +1,4 @@
-local debug = require("lib/debug")
+local log      = require("lib/log")
 
 --- interface
 -- /c remote.call( "Kux-Running", "on" )

@@ -1,6 +1,6 @@
-local debug    = require("lib/debug")
-local tools    = require("module/tools")
-local settings = require("module/settings")
+local log      = require("lib/log")
+local tools    = require("modules.tools")
+local settings = require("modules.settings")
 local this = nil
 
 modules.modeZoom = {

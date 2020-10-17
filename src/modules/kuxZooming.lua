@@ -1,5 +1,6 @@
-local settings    = require "module/settings"
---local playerMemory = require "module/playerMemory"  --circular reference
+local log      = require("lib/log")
+local settings    = require "modules.settings"
+--local playerMemory = require "modules.playerMemory"  --circular reference
 local this = nil
 
 --- kuxZooming module
@@ -11,17 +12,17 @@ modules.kuxZooming = {
 	functions = {
 		onZoomFactorChanged = function(event)
 			local player = game.players[event.playerIndex]
-			local mem = modules.playerMemory.get(player)
+			local pm = modules.playerMemory.get(player)
 			local zoomFactor = event.zoomFactor
 			local renderMode = event.renderMode
-			mem.renderMode = renderMode
-			mem.zoomFactor = zoomFactor
-			if mem.mode == "zoom" and not mem.canHover and player.connected and player.character ~= nil and renderMode == defines.render_mode.game then
+			pm.renderMode = renderMode
+			pm.zoomFactor = zoomFactor
+			if pm.mode == "zoom" and not pm.canHover and player.connected and player.character ~= nil and renderMode == defines.render_mode.game then
 				local modifier = 0
 				if(zoomFactor <= 1) then
-					modifier = 1 / zoomFactor -1
+					modifier = (1/zoomFactor) * settings.getZoomSpeedModificator(player) -1
 				else
-					modifier = (1/zoomFactor - 1) / 1.5
+					modifier = (1/zoomFactor) * settings.getZoomSpeedModificator(player) - 1
 				end
 				player.character_running_speed_modifier = modifier
 				--player.print("onZoomFactorChanged: "..zoomFactor..", character_running_speed_modifier:"..modifier)

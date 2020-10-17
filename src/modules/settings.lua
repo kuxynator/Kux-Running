@@ -23,10 +23,18 @@ modules.settings = {
 			if value and not global.cheatMode then
 				global.cheatMode = true
 				game.print("Kux-Running: Cheat mode enabled.")
-			elseif not value and modules.control.isEnabled then
+			elseif not value and global.cheatMode and modules.control.isEnabled then
 				global.cheatMode = false
 				game.print("Kux-Running: Cheat mode disabled.")
+			elseif global.cheatMode == nil then
+				global.cheatMode = false
 			end
+			return global.cheatMode
+		end,
+
+		isLogEnabled = function()
+			local value = modules.settings.getIsLogEnabled()
+			modules.log.isEnabled = value
 		end,
 
 		--[[ runtime-per-user ]] --
@@ -38,14 +46,20 @@ modules.settings = {
 
 		initialSpeedFactor = function (playerMemory)
 			local value = modules.settings.getInitialSpeedFactor(playerMemory.player)
-			--if value ~= playerMemory.initialSpeedFactor then  end
+			--if value ~= playerMemory.initialSpeedFactor then end	
 			playerMemory.initialSpeedFactor = value
 		end,
 
-		accelerationFactor = function (playerMemory)
-			local value = modules.settings.getAccelerationFactor(playerMemory.player)
-			--if value ~= playerMemory.accelerationFactor then  end
-			playerMemory.accelerationFactor = value
+		speedTable = function (playerMemory)
+			local player = playerMemory.player
+			local upsAdjustment = modules.settings.getUpsAdjustment(player)
+			local t = {
+				player.mod_settings["Kux-Running_WalkingSpeedTable_1"].value * upsAdjustment,
+				player.mod_settings["Kux-Running_WalkingSpeedTable_2"].value * upsAdjustment,
+				player.mod_settings["Kux-Running_WalkingSpeedTable_3"].value * upsAdjustment
+			}
+			table.sort(t, function(a,b) return a < b end)
+			playerMemory.speedTable = t
 		end,
 
 		zoomSpeedModificator = function (playerMemory)
@@ -56,25 +70,26 @@ modules.settings = {
 	},
 
 	-- script.on_event(on_runtime_mod_setting_changed)
-	onConfigurationChanged = function(event, player)
+	onSettingsChanged = function(event, player)
 		if player == nil then
 
 			this.check.isEnabled()
 			this.check.cheatMode()
+			this.check.isLogEnabled()
 
-			if event.player_index == nil then --return end -- changed by a script
+			if event.player_index == nil then --changed by a script
 				for _, player in pairs(game.players) do
-					this.onConfigurationChanged(event, player)
+					this.onSettingsChanged(event, player)
 				end
 			else
-				this.onConfigurationChanged(event, game.players[event.player_index])
+				this.onSettingsChanged(event, game.players[event.player_index])
 			end
 		else
-			local mem = modules.playerMemory.get(player)
+			local pm = modules.playerMemory.get(player)
 
-			this.check.mode(mem)
-			this.check.initialSpeedFactor(mem)
-			this.check.accelerationFactor(mem)
+			this.check.mode(pm)
+			this.check.initialSpeedFactor(pm)
+			this.check.speedTable(pm)
 
 			--local initialSpeedFactor = module.settings.getInitialSpeedFactor(player)
 			--if initialSpeedFactor > 1 then
@@ -95,6 +110,10 @@ modules.settings = {
 		return settings.global["Kux-Running_CheatMode"].value
 	end,
 
+	getIsLogEnabled = function()
+		return settings.global["Kux-Running_EnableLog"].value
+	end,
+
 	--[[ runtime-per-user ]] --
 
 	getMode = function(player)
@@ -112,11 +131,29 @@ modules.settings = {
 	end,
 
 	getInitialSpeedFactor = function(player)
-		return player.mod_settings["Kux-Running_InitialSpeedFactor"].value
+		local value = player.mod_settings["Kux-Running_InitialSpeedFactor"].value
+		value = value * this.getUpsAdjustment(player)
+		return value
 	end,
 
-	getAccelerationFactor = function(player)
-		return player.mod_settings["Kux-Running_AccelerationFactor"].value
+	--@return [double]
+	getUpsAdjustment = function (player)
+		local value = player.mod_settings["Kux-Running_UpsAdjustment"].value
+		if value > 10 then -- value in UPS, convert to facror
+			value = 60/value
+		end
+
+		local slowerAdaption = player.mod_settings["Kux-Running_SlowerGameSpeedAdaptation"].value
+		local fasterAdaption = player.mod_settings["Kux-Running_FasterGameSpeedAdaptation"].value
+
+		if(slowerAdaption and game.speed < 1) then
+			value = value / game.speed
+		else if(fasterAdaption and game.speed > 1) then
+				value = value / game.speed
+			end
+		end
+
+		return value
 	end,
 
 	getZoomSpeedModificator = function(player)
