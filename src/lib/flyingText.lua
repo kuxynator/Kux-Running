@@ -5,8 +5,10 @@ end
 
 --- flying-text module
 -- @module flyingText
-modules.flyingText = {
+FlyingText = {
+	moduleName="flyingText",
 	create = function (player, text, color)
+		color = color or {0.8,0.8,0.8}
 		player.surface.create_entity({
 			name = "flying-text",
 			position = pos_offset(player.position,{x=-0.5, y=0.2}),
@@ -15,4 +17,5 @@ modules.flyingText = {
 	end
 }
 
-return modules.flyingText
+Modules.flyingText = FlyingText
+return FlyingText

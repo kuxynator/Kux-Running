@@ -1,23 +1,29 @@
 local this = nil
+
+local getIsEnabled = function ()
+	local entry = settings.global[script.mod_name.."_EnableLog"]
+	if entry == nil then return false end
+	return entry.value
+end
+
+--- deterministic data of log module
+local data = {
+	isEnabled = false
+}
+
 --- Log module
 -- @module log
-modules.log = {
+Log = {
 
-	getIsEnabled = function ()
-		local entry = settings.global[script.mod_name.."_EnableLog"]
-		if entry == nil then return false end
-		return entry.value
+	onLoaded = function ()
+		data = global.moduleData.log or data
+		this.data = data
+		this.onSettingsChanged() -- force update
 	end,
-
 	--- to debug bootstraap set isEnabled to true
-	isEnabled = false,
 
 	onSettingsChanged = function()
-		this.isEnabled = this.getIsEnabled()
-	end,
-
-	onLoaded = function(e)
-		this.onSettingsChanged()
+		data.isEnabled = getIsEnabled()
 	end,
 
 	joinArgs = function (...)
@@ -31,8 +37,7 @@ modules.log = {
 	end,
 
 	trace = function(...)
-		if not this.isEnabled then return end
-
+		if not data.isEnabled then return end
 		local msg = script.mod_name..": "
 		for i = 1, select("#",...) do
 			local v = select(i,...)
@@ -44,7 +49,7 @@ modules.log = {
 	end,
 
 	print = function(...)
-		if not this.isEnabled then return end
+		if not data.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -57,7 +62,7 @@ modules.log = {
 	end,
 
 	userTrace = function(...)
-		if not this.isEnabled then return end
+		if not data.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -70,7 +75,7 @@ modules.log = {
 	end,
 
 	userWarning = function(...)
-		if not this.isEnabled then return end
+		if not data.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -83,7 +88,7 @@ modules.log = {
 	end,
 
 	userError = function(...)
-		if not this.isEnabled then return end
+		if not data.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -93,8 +98,9 @@ modules.log = {
 			msg = msg .. v
 		end
 		game.get_player(1).print(msg, {r = 1, g = 0, b = 0, a = 1})
-	end
+	end,
 }
 
-this = modules.log --init local this
-return this
+this = Log --init local this
+Modules.log = Log -- add to modules
+return Log

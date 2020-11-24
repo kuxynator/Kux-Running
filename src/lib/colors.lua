@@ -1,6 +1,6 @@
 --- core module
 -- @module core
-local colors = {
+Colors = {
 	white = {r = 1, g = 1, b = 1},
 	lightgrey = {r = 0.75, g = 0.75, b = 0.75},
 	grey = {r = 0.5, g = 0.5, b = 0.5},
@@ -22,4 +22,3 @@ local colors = {
 	purple = {r = 0.6, g = 0.1, b = 0.6},
 	cyan = {r = 0, g = 1, b = 1},
 }
-return colors

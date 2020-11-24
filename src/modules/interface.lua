@@ -1,20 +1,18 @@
-local log      = require("lib/log")
-
 --- interface
 -- /c remote.call( "Kux-Running", "on" )
 -- /c remote.call( "Kux-Running", "off" )
 local interface = {
 
 	on = function()
-		modules.control.enable()
+		Modules.control.enable()
 	end,
 
 	off = function()
-		modules.control.disable()
+		Modules.control.disable()
 	end,
 
 	getIsEnabled = function()
-		return modules.control.isEnabled
+		return global.isEnabled
 	end,
 }
 

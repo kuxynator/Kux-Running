@@ -1,9 +1,6 @@
-local log      = require("lib/log")
-local tools    = require("modules.tools")
-local settings = require("modules.settings")
 local this = nil
 
-modules.modeZoom = {
+ModeZoom = {
 	name ="modeZoom",
 
 	onLoaded = function ()
@@ -14,7 +11,7 @@ modules.modeZoom = {
 		if(playerMemory.canHover) then
 			playerMemory.player.character_running_speed_modifier = -0.5 --TODO calc best value
 		else
-			tools.tryRestoreCharacterRunningSpeedModifier(playerMemory.player)
+			Tools.tryRestoreCharacterRunningSpeedModifier(playerMemory.player)
 		end
 	end,
 
@@ -31,11 +28,11 @@ modules.modeZoom = {
 		if(isWalking and not pm.isWalking) then
 			--start walking
 			player.character_running_speed_modifier = -0.999 -- stop the walk animation
-			modules.control.setTick(1)
+			Modules.control.setTick(1)
 		elseif not isWalking and pm.isWalking then
 			--stop walking
 			player.character_running_speed_modifier = -0.5 --TODO calc best value
-			modules.control.setTick(10)
+			Modules.control.setTick(10)
 		end
 		pm.isWalking = isWalking
 		if not isWalking then return end
@@ -52,7 +49,7 @@ modules.modeZoom = {
 		elseif direction == 7 then xd = -1; yd = -1
 		end
 
-		local f = 0.15 / pm.zoomFactor * settings.getZoomSpeedModificator(player) --TODO cache value
+		local f = 0.15 / pm.zoomFactor * Settings.getZoomSpeedModificator(player) --TODO cache value
 		local xo=xd*f
 		local yo=yd*f
 		pm.position = pm.position or player.position --TODO optimize, move to onLoaded
@@ -65,6 +62,5 @@ modules.modeZoom = {
 		player.teleport(pm.position)
 	end
 }
-
-this = modules.modeZoom
-return this
+Modules.modeZoom = ModeZoom
+this = ModeZoom

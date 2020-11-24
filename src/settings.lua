@@ -83,7 +83,7 @@ data:extend({
         name = "Kux-Running_UpsAdjustment",
         setting_type = "runtime-per-user",
         default_value = 1,
-        maximum_value = 100,
+        maximum_value = 500,
         minimum_value = 0.1,
         order = "b05"
 	},
@@ -112,6 +112,24 @@ data:extend({
         maximum_value = 10,
         minimum_value = 0.1,
         order = "c01"
+	},
+	{
+        type = "double-setting",
+        name = "Kux-Running_ZoomModeAutoToggleFactor",
+        setting_type = "runtime-per-user",
+        default_value = 0,
+        maximum_value = 10,
+        minimum_value = 0,
+        order = "c02"
+	},
+	{
+        type = "double-setting",
+        name = "Kux-Running_ZoomHoverModeAutoToggleFactor",
+        setting_type = "runtime-per-user",
+        default_value = 0,
+        maximum_value = 10,
+        minimum_value = 0,
+        order = "c03"
 	},
 --[[	{
         type = "double-setting",

@@ -1,4 +1,32 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.6.1
+Date: 2020-10-20
+  Features:
+    - automaticaly switch to zoom+hover mode
+    - zoom uses UPS correction and game speed correction too
+  Bugfixes:
+    - localized settings
+    - MP events re-registration
+---------------------------------------------------------------------------------------------------
+Version: 1.6.0
+Date: 2020-10-19
+  Features:
+    - dynamicaly switch between all modes Accelerate/Hover/Zoom
+    - automaticaly switch to zoom mode and back
+  Bugfixes:
+    - MP events re-registration
+---------------------------------------------------------------------------------------------------
+Version: 1.5.3
+Date: 2020-10-19
+  Optimizations:
+    - refactoring
+    - more MP stability
+---------------------------------------------------------------------------------------------------
+Version: 1.5.2
+Date: 2020-10-18
+  Bugfixes:
+    - Fix crash on new game. character reqired.
+---------------------------------------------------------------------------------------------------
 Version: 1.5.0
 Date: 2020-10-17
   Features:

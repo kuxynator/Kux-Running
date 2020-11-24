@@ -2,28 +2,28 @@ local this = nil
 
 --- Settings module
 -- @module settings
-modules.settings = {
+Settings = {
 
 	onModeChanged = function (playerMemory, newMode)
 		playerMemory.mode = newMode
-		modules.control.onModeChanged(playerMemory, newMode)
+		Modules.control.onModeChanged(playerMemory, newMode)
 	end,
 
 	check = {
 		--[[ runtime-global ]] --
 
 		isEnabled = function()
-			local isEnabled = modules.settings.getIsEnabled()
-			if isEnabled and not modules.control.isEnabled then modules.control.enable()
-			elseif not isEnabled and modules.control.isEnabled then modules.control.disable() end
+			local isEnabled = Settings.getIsEnabled()
+			if isEnabled and not global.isEnabled then Modules.control.enable()
+			elseif not isEnabled and global.isEnabled then Modules.control.disable() end
 		end,
 
 		cheatMode = function()
-			local value = modules.settings.getCheatMode()
+			local value = Settings.getCheatMode()
 			if value and not global.cheatMode then
 				global.cheatMode = true
 				game.print("Kux-Running: Cheat mode enabled.")
-			elseif not value and global.cheatMode and modules.control.isEnabled then
+			elseif not value and global.cheatMode and global.isEnabled then
 				global.cheatMode = false
 				game.print("Kux-Running: Cheat mode disabled.")
 			elseif global.cheatMode == nil then
@@ -33,26 +33,26 @@ modules.settings = {
 		end,
 
 		isLogEnabled = function()
-			local value = modules.settings.getIsLogEnabled()
-			modules.log.isEnabled = value
+			local value = Settings.getIsLogEnabled()
+			Modules.log.isEnabled = value
 		end,
 
 		--[[ runtime-per-user ]] --
 
 		mode = function (playerMemory)
-			local mode = modules.settings.getMode(playerMemory.player)
-			if mode ~= playerMemory.mode then modules.settings.onModeChanged(playerMemory, mode) end
+			local mode = Settings.getMode(playerMemory.player)
+			if mode ~= playerMemory.mode then Settings.onModeChanged(playerMemory, mode) end
 		end,
 
 		initialSpeedFactor = function (playerMemory)
-			local value = modules.settings.getInitialSpeedFactor(playerMemory.player)
-			--if value ~= playerMemory.initialSpeedFactor then end	
+			local value = Settings.getInitialSpeedFactor(playerMemory.player)
+			--if value ~= playerMemory.initialSpeedFactor then end
 			playerMemory.initialSpeedFactor = value
 		end,
 
 		speedTable = function (playerMemory)
 			local player = playerMemory.player
-			local upsAdjustment = modules.settings.getUpsAdjustment(player)
+			local upsAdjustment = Settings.getUpsAdjustment(player)
 			local t = {
 				player.mod_settings["Kux-Running_WalkingSpeedTable_1"].value * upsAdjustment,
 				player.mod_settings["Kux-Running_WalkingSpeedTable_2"].value * upsAdjustment,
@@ -63,7 +63,7 @@ modules.settings = {
 		end,
 
 		zoomSpeedModificator = function (playerMemory)
-			local value = modules.settings.getZoomSpeedModificator(playerMemory.player)
+			local value = Settings.getZoomSpeedModificator(playerMemory.player)
 			--if value ~= playerMemory.getZoomSpeedModificator then  end
 			playerMemory.zoomSpeedModificator = value
 		end,
@@ -85,7 +85,7 @@ modules.settings = {
 				this.onSettingsChanged(event, game.players[event.player_index])
 			end
 		else
-			local pm = modules.playerMemory.get(player)
+			local pm = Modules.playerMemory.get(player)
 
 			this.check.mode(pm)
 			this.check.initialSpeedFactor(pm)
@@ -139,7 +139,7 @@ modules.settings = {
 	--@return [double]
 	getUpsAdjustment = function (player)
 		local value = player.mod_settings["Kux-Running_UpsAdjustment"].value
-		if value > 10 then -- value in UPS, convert to facror
+		if value > 10 then -- value in UPS, convert to factor
 			value = 60/value
 		end
 
@@ -162,8 +162,15 @@ modules.settings = {
 
 	zoomSpeedOffset = function(player)
 		return player.mod_settings["Kux-Running_ZoomSpeedOffset"].value
+	end,
+
+	getZoomModeAutoToggleFactor=function (player)
+		return player.mod_settings["Kux-Running_ZoomModeAutoToggleFactor"].value
+	end,
+	getZoomHoverModeAutoToggleFactor=function (player)
+		return player.mod_settings["Kux-Running_ZoomHoverModeAutoToggleFactor"].value
 	end
 }
 
-this = modules.settings
-return modules.settings
+this = Settings
+Modules.settings = Settings

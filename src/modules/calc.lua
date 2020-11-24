@@ -1,11 +1,8 @@
-local log      = require("lib/log")
-local colors   = require("lib/colors")
-local settings = require("modules.settings")
 local this = nil
 
 --- Calculation module
 -- @module calc
-modules.calc = {
+Calc = {
 	name = "calc",
 
 	distance = function (p1,p2)
@@ -18,7 +15,7 @@ modules.calc = {
 		elseif unit=="s" then return v * 60
 		elseif unit=="m" then return v * 60*60
 		elseif unit=="h" then return v * 60*60*60
-		else error("Parameter out of range. Parameter 'unit' in function "..script.mod_name..".'tools.speed'") end
+		else error("Parameter out of range. Parameter 'unit' in function "..script.mod_name..".'Calc.speed'") end
 	end,
 
 	--- Calculates the speed modifier
@@ -27,7 +24,7 @@ modules.calc = {
 	--@param speedFactor   The speed factor [double]
 	--@return speed modifier [double]
 	speedModifierByFactor = function (movementBonus, tileModifier, speedFactor)
-		return this.speedModifierBySpeed(movementBonus, tileModifier, 0.15 * speedFactor)
+		return Calc.speedModifierBySpeed(movementBonus, tileModifier, 0.15 * speedFactor)
 	end,
 
 	--- Calculates the speed modifier
@@ -36,7 +33,7 @@ modules.calc = {
 	--@param desiredSpeed   The desired speed [double] in tiles/tick (default is 0.15)
 	--@return speed modifier [double]
 	speedModifierBySpeed = function (movementBonus, tileModifier, desiredSpeed)
-		local currentSpeed = this.walkingSpeed(movementBonus, tileModifier)
+		local currentSpeed = Calc.walkingSpeed(movementBonus, tileModifier)
 		if desiredSpeed > currentSpeed then return desiredSpeed / currentSpeed
 		elseif desiredSpeed < currentSpeed then return -1 + desiredSpeed / currentSpeed
 		else return 0 end
@@ -54,8 +51,4 @@ modules.calc = {
 		local speed = (0.15 + 0.15 * movementBonus) * tileModifier * (speedModifier + 1)
 		return speed
 	end
-	
 }
-
-this = modules.calc -- init local this
-return this

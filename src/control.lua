@@ -1,34 +1,37 @@
-modules = {}
-static = static or {}
+Modules = {}
 require("lib/lua")
-local core           = require("lib/core")
-local log            = require("lib/log")
-local colors         = require("lib/colors")
-local flyingText     = require("lib/flyingText")
-local settings       = require("modules.settings")
-local tools          = require("modules.tools")
-local playerMemory   = require("modules.playerMemory")
-local modeHover      = require("modules.modeHover")
-local modeAccelerate = require("modules.modeAccelerate")
-local modeZoom       = require("modules.modeZoom")
-local kuxZooming     = require("modules.kuxZooming")
-local nauvisMelange  = require("modules.nauvisMelange")
+require("lib/Log")
+require("lib/Colors")
+require("lib/FlyingText")
+require("modules/PlayerMemory")
+require("modules/Settings")
+require("modules/Tools")
+require("modules/Calc")
+require("modules/ModeHover")
+require("modules/ModeAccelerate")
+require("modules/ModeZoom")
+require("modules/KuxZooming")
+require("modules/NauvisMelange")
 
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 
 local flyingSpeedModeSymbols = {"0", ">", ">>"}
-local flyingSpeedModeColors = {colors.lightgrey, colors.cyan, colors.purple}
+local flyingSpeedModeColors = {Colors.lightgrey, Colors.cyan, Colors.purple}
 local flyingAccelerationSymbols = {"-", "<", "*"}
-local flyingAccelerationColors = {colors.red, colors.yellow, colors.green}
+local flyingAccelerationColors = {Colors.red, Colors.yellow, Colors.green}
 local this = nil
 
-modules.control = {
+Modules.control = {
 	name = "control",
-	isEnabled = nil,
+
+	--- deterministic data of control module
+	data = {
+		isEnabled = false
+	},
 
 	onToggleSpeedMode = function (event)
 		local player = game.players[event.player_index]
-		local pm = playerMemory.get(player)
+		local pm = PlayerMemory.get(player)
 		if(pm.mode~="accelerate" and pm.mode ~= "hover") then return end
 		local v = pm.speedMode
 		if v == 3 then v = 1 else v = v + 1 end
@@ -36,34 +39,38 @@ modules.control = {
 	end,
 
 	setSpeedMode = function(playerMemory, newMode)
+		Log.trace("setSpeedMode ",playerMemory.player.index," ",newMode)
 		local pm = playerMemory
 		if newMode > 3 then newMode = 3 elseif newMode < 1 then newMode = 1 end
 		if pm.speedMode == newMode then return end
 		pm.speedMode = newMode
-		--log.print("setSpeedMode ",pm.speedMode," ",flyingSpeedModeSymbols[pm.speedMode])
-		flyingText.create(pm.player, flyingSpeedModeSymbols[pm.speedMode], flyingSpeedModeColors[pm.speedMode])
+		FlyingText.create(pm.player, flyingSpeedModeSymbols[pm.speedMode], flyingSpeedModeColors[pm.speedMode])
 		pm.speedModifier = pm.speedTable[pm.speedMode]
 	end,
 
 	onToggleAccelerationMode = function (event)
 		local player = game.players[event.player_index]
-		local pm = playerMemory.get(player)
+		local pm = PlayerMemory.get(player)
 		if pm.mode~="accelerate" and pm.mode ~= "hover" then return end
 
-		if pm.accelerationMode == 3 then pm.accelerationMode = 1 else pm.accelerationMode = pm.accelerationMode + 1 end
-		flyingText.create(player, flyingAccelerationSymbols[pm.accelerationMode], flyingAccelerationColors[pm.accelerationMode])
-		pm.isWalking = true --TODO check necessity
+		local newMode = pm.accelerationMode
+		if newMode == 3 then newMode = 1 else newMode = newMode + 1 end
+
+		Log.trace("onToggleAccelerationMode ",pm.player.index," ",newMode)
+		pm.accelerationMode = newMode 
+		FlyingText.create(player, flyingAccelerationSymbols[pm.accelerationMode], flyingAccelerationColors[pm.accelerationMode])
+
 		--if pm.mode == "accelerate" then modules.modeAccelerate.onAccelerationModeChanged(pm) end
-		if pm.mode == "hover" then modules.modeHover.onAccelerationModeChanged(pm) end
+		if pm.mode == "hover" then Modules.modeHover.onAccelerationModeChanged(pm) end
 	end,
 
 	onToggleHover = function(eventOrPlayerMemory) -- on_lua_shortcut event or PlayerMemory
-		log.print("onToggleHover(..)")
+		Log.print("onToggleHover(..)")
 		local player = nil
 		local pm = nil
 		if eventOrPlayerMemory.input_name ~= nil then
 			player = game.get_player(eventOrPlayerMemory.player_index)
-			pm = playerMemory.get(player)
+			pm = PlayerMemory.get(player)
 		else
 			pm = eventOrPlayerMemory --TODO asuming PlayerMemory
 			player = pm.player
@@ -72,11 +79,13 @@ modules.control = {
 		if pm.mode == "zoom" then
 			if pm.canHover then
 				pm.canHover = false
-				player.print("Zoom mode. Hover mode off.")
+				player.print("Zoom mode")
+				FlyingText.create(pm.player,"Zoom")
 			else
 				pm.canHover = true
-				modules.modeZoom.init(pm)
-				player.print("Zoom mode. Hover mode on.")
+				Modules.modeZoom.init(pm)
+				player.print("Zoom+Hover mode")
+				FlyingText.create(pm.player,"Zoom+Hover")
 			end
 			return
 		end
@@ -85,57 +94,59 @@ modules.control = {
 			-- try turn on hover
 			if player.character == nil then return end
 			if pm.movementEnergy > 0.1 then pm.isHovering = true
-			elseif tools.tryAddMovementEnergy(pm,"hover") then pm.isHovering = true
+			elseif Tools.tryAddMovementEnergy(pm,"hover") then pm.isHovering = true
 			else return end
 		else
 			--onHoverStopped(pm)
 			pm.isHovering = false
 		end
 		--if pm.isHovering then onHoverStarted(pm) end
-		log.trace("onToggleHover ", pm.isHovering)
+		Log.trace("onToggleHover ", pm.isHovering)
 
 		if pm.isHovering and pm.mode == "accelerate" then
 			pm.mode = "hover"
-			modules.modeHover.init(pm)
+			Modules.modeHover.init(pm)
+			pm.player.print("Hover mode")
+			FlyingText.create(pm.player,"Hover mode")
 		elseif not pm.isHovering and pm.mode == "hover" then
 			pm.mode = "accelerate"
-			modules.modeAccelerate.init(pm)
+			Modules.modeAccelerate.init(pm)
+			pm.player.print("Accelerate mode")
+			FlyingText.create(pm.player,"Accelerate")
 		end
 	end,
 
 	onToggleZoom = function(eventOrPlayerMemory) -- on_lua_shortcut event or PlayerMemory
-		log.print("onToggleZoom(..)")
-		local player = nil
-		local pm = nil
-		if eventOrPlayerMemory.input_name ~= nil then
-			player = game.get_player(eventOrPlayerMemory.player_index)
-			pm = playerMemory.get(player)
-		else
-			pm = eventOrPlayerMemory --TODO asuming PlayerMemory
-			player = pm.player
-		end
-
+		Log.print("onToggleZoom(..)")
+		local pm = eventOrPlayerMemory
+		if eventOrPlayerMemory.input_name ~= nil then pm = PlayerMemory.get(game.get_player(eventOrPlayerMemory.player_index)) end
+		
 		if pm.mode == "zoom" then
 			-- turn off zoom mode
-			if pm.isHovering then
+			if pm.canHover then
 				pm.mode = "hover"
-				modules.modeHover.init(pm)
-				player.print("Zoom mode off. Hover mode on.")
+				Modules.modeHover.init(pm)
+				pm.player.print("Hover mode")
+				FlyingText.create(pm.player,"Hover")
 			else 
 				pm.mode = "accelerate"
-				player.print("Zoom mode off.")
+				Modules.modeAccelerate.init(pm)
+				pm.player.print("Accelerate mode")
+				FlyingText.create(pm.player,"Accelerate")
 			end
 		else
 			-- turn on zoom mode
-			if pm.isHovering then
+			if pm.mode == "hover" then
 				pm.mode = "zoom"
 				pm.canHover = true
-				modules.modeZoom.init(pm)
-				player.print("Zoom mode on (hover)")
-			else 
+				Modules.modeZoom.init(pm)
+				pm.player.print("Zoom mode ON (hover)")
+				FlyingText.create(pm.player,"Zoom+Hover")
+			else
 				pm.mode = "zoom"
 				pm.canHover = false
-				player.print("Zoom mode on")
+				pm.player.print("Zoom mode ON")
+				FlyingText.create(pm.player,"Zoom")
 			end
 		end
 	end,
@@ -146,53 +157,24 @@ modules.control = {
 	end,
 
 	onLoaded = function(e)
-		log.trace(e.tick," onLoaded")
-		if not settings.getIsEnabled() then return end
+		Log.trace("onLoaded")
 
-		for name,module in pairs(modules) do if name~="control" and module.onLoaded ~=nil then module.onLoaded(e) end end
+		global.moduleData = global.moduleData or {}
+		this.data = global.moduleData.control or this.data -- load data from global
 
-		tools.registerForEvents();
-
-		global.lastTick = global.lastTick or e.tick-1		
-		modules.kuxZooming.onZoomFactorChanged_register()
-		modules.nauvisMelange.onSpiceInfluenceChanged_add()
-
-		this.isEnabled = false
-		global.tickFreqency = 0
-		global.nthTick = 0
-		settings.check.cheatMode()
-
-		--log.print("isMultiplayer: ",global.isMultiplayer)
+		-- read config, this will override values from last session
+		global.isEnabled = Settings.getIsEnabled()
 
 		global.isMultiplayer = game.is_multiplayer()
-		if not global.isMultiplayer then
-			global.player = game.get_player(1)
-			global.playerMemory = playerMemory.get(global.player)
-		end
 
-		for _, player in pairs(game.players) do
-			local pm = playerMemory.get(player)
-			if player.character ~= nil then
-				pm.isWalking = player.walking_state.walking
-				pm.position = player.position
-				pm.movementBonus = tools.getMovementBonus(player)
-				pm.tileWalkingSpeedModifier = tools.getTileSpeedModifier(player)
-				pm.location.surfaceName = player.surface.name
-				pm.location.tilePosition = player.character.surface.get_tile(player.character.position).position
-			end
-			if(nauvisMelange.isAvailable) then
-				pm.hasSpiceInfluence = nauvisMelange.getHasSpiceInfluence(pm)
-			end
-		end
+		-- distribute onLoaded to all modules
+		for name,module in pairs(Modules) do if name~="control" and module.onLoaded ~=nil then module.onLoaded(e) end end
+		script.on_event(defines.events.on_runtime_mod_setting_changed, Settings.onSettingsChanged)
+
+		if not global.isEnabled then return end
 
 		this.enable()
-	end,
-
-	onTickSafe = function (e)
-		try(
-			function () this.onTickEx(e) end,
-			function (ex) print(ex)	end
-		)
+		this.onTick(e)
 	end,
 
 	onTick = function (e) -- on_nth_tick(1)
@@ -216,7 +198,7 @@ modules.control = {
 		end
 
 		for _, player in pairs(game.players) do
-			local pm = playerMemory.get(player)
+			local pm = PlayerMemory.get(player)
 			this.onPlayerTick(e,pm)
 		end
 
@@ -238,16 +220,16 @@ modules.control = {
 		elseif not pm.hasCharacter and player.connected and player.character ~= nil then
 			--onCharacterConnected(pm)
 			pm.hasCharacter = true
-			this.initPlayer(player, "player character detected")
+			this.initPlayer(pm, "player character connected")
 		elseif player.character == nil then
 			return
 		end
 
-		-- here because used in mode zoom and in mode hover
+		-- here because its used in mode zoom and in mode hover
 		if not global.cheatMode and pm.isHovering then
 			local consumption = 0.0002778 * ticks -- 1 min / buffer
 			if pm.movementEnergy - consumption < 0 then
-				if not tools.tryAddMovementEnergy(pm,"hover") then
+				if not Tools.tryAddMovementEnergy(pm,"hover") then
 					this.onToggleHover(pm) -- toggle off
 				end
 			end
@@ -259,137 +241,172 @@ modules.control = {
 
 		local mode = pm.mode
 		--if(pm.mode ~= mode) then settings.onModeChanged(pm, mode) end -- this will also call control.onModeChanged
-		if    (mode == "accelerate"           ) then modeAccelerate.onTick(e, pm)
-		elseif(mode == "hover"                ) then modeHover.onTick(e, pm)
-		elseif(mode == "zoom" and pm.canHover ) then modeZoom.onTick(e, pm) end
+		if    (mode == "accelerate"           ) then ModeAccelerate.onTick(e, pm)
+		elseif(mode == "hover"                ) then ModeHover.onTick(e, pm)
+		elseif(mode == "zoom" and pm.canHover ) then ModeZoom.onTick(e, pm) end
 	end,
 
 	setTick = function(n)
+		if n == 10 then n = 1 end --hack for test
 		if(global.tickFreqency == n) then return end
-		script.on_nth_tick(nil)
+		script.on_nth_tick(nil)		
 		if n > 0 then script.on_nth_tick(n, this.onTick) end
 		global.tickFreqency = n
 		global.nthTick = 0
-		log.trace("setTick ",n)
+		Log.trace("setTick ",n)
 	end,
 
 	enable = function ()
-		log.trace(this.name, ".enable()")
-		if this.isEnabled then return end
+		Log.trace("enabe")
+
+		Tools.registerEvents();
+		Modules.kuxZooming.onZoomFactorChanged_register()
+		Modules.nauvisMelange.onSpiceInfluenceChanged_add()
+
+		global.lastTick = global.lastTick or game.tick-1
+
+		global.tickFreqency = 0
+		global.nthTick = 0
+		Settings.check.cheatMode()
+
+		--log.print("isMultiplayer: ",global.isMultiplayer)
 
 		for _, player in pairs(game.players) do
-			this.initPlayer(player)
-			::next::
+			local pm = PlayerMemory.get(player)
+			this.initPlayer(pm, "mod enabled")
 		end
-		if global.isMultiplayer then
-			this.setTick(1)
-		else
-			this.setTick(10)
+
+		if not global.isMultiplayer then
+			global.player = game.get_player(1)
+			global.playerMemory = PlayerMemory.get(global.player)
 		end
-		this.isEnabled = true
+
+		this.setTick(iif(global.isMultiplayer, 1, 10))
+		global.isEnabled = true
 	end,
 
-	initPlayer = function (player, reason)
-		log.print(this.name, ".initPlayer(",player.index,") ",reason)
-		--if(playerMemory.get(player).isInitialized) then error("initPlayer") end
+	initPlayer = function (playerMemory, reason)
+		Log.trace("initPlayer() ",playerMemory.player.index," ",reason)
+		local pm = playerMemory
+		local player = pm.player
 
 		if(not player.connected or player.character == nil) then return end
-		local pm = playerMemory.get(player)
-		local mode = pm.mode
+
+		pm.isWalking = player.walking_state.walking
+		pm.position = player.position
+		pm.movementBonus = Tools.getMovementBonus(player)
+		Tools.updateLocation(pm)
+
 		pm.canHover = true -- enable hover (in zoom mode) for all
 
-		if    (mode == "accelerate") then modeAccelerate.init(pm)
-		elseif(mode == "hover"     ) then modeHover.init(pm)
-		elseif(mode == "zoom"      ) then modeZoom.init(pm) end
-		pm.isInitialized = true
+		pm.movementBonus = Tools.getMovementBonus(player)
+		Tools.updateLocation(pm)
 
+		if(NauvisMelange.isAvailable) then
+			pm.hasSpiceInfluence = NauvisMelange.getHasSpiceInfluence(pm)
+		end
+
+		if    (pm.mode == "accelerate") then ModeAccelerate.init(pm)
+		elseif(pm.mode == "hover"     ) then ModeHover.init(pm)
+		elseif(pm.mode == "zoom"      ) then ModeZoom.init(pm) end
+
+		pm.isInitialized = true
 	end,
 
 	disable = function ()
-		if not this.isEnabled then return end
-		script.on_nth_tick(nil)
-		global.tickFreqency = 0
+		Log.trace("disable()")
+
+		Tools.unregisterEvents(); -- except on_runtime_mod_setting_changed
+		Modules.kuxZooming.onZoomFactorChanged_remove()
+		Modules.nauvisMelange.onSpiceInfluenceChanged_remove()
+
+		this.setTick(0)
+
 		for _, player in pairs(game.players) do
-			local pm = playerMemory.get(player)
-			tools.tryRestoreCharacterRunningSpeedModifier(player)
+			local pm = PlayerMemory.get(player)
+			Tools.tryRestoreCharacterRunningSpeedModifier(pm)
 			pm.isInitialized = false
 		end
-		this.isEnabled = false
+
+		global.isEnabled = false
 	end,
 
 	onModeChanged = function (playerMemory, newMode)
-		local player = playerMemory.player
-		playerMemory.mode = newMode
+		local pm = playerMemory
+		local player = pm.player
+		pm.mode = newMode
 		if(player.character == nil) then
-			player.print("Kux-Running: Can not change the mode. No character.", colors.lightred)
-			playerMemory.hasCharakter = false
+			player.print("Kux-Running: Can not change the mode. No character.", Colors.lightred)
+			pm.hasCharakter = false
 			return
 		end
 		if newMode == "none" then
-			tools.tryRestoreCharacterRunningSpeedModifier(player)
+			Tools.tryRestoreCharacterRunningSpeedModifier(pm)
 		elseif newMode == "accelerate" then
-			modules.modeAccelerate.init(playerMemory)
+			Modules.modeAccelerate.init(pm)
 		elseif newMode == "hover" then
-			modules.modeHover.init(playerMemory)
+			Modules.modeHover.init(pm)
 		elseif newMode == "zoom" then
-			modules.modeZoom.init(playerMemory)
-			modules.kuxZooming.onModeChanged(playerMemory.player)
+			Modules.modeZoom.init(pm)
+			Modules.kuxZooming.onModeChanged(pm.player)
 		end
 	end,
 
 	onSurfaceChanged = function(playerMemory, surface)
 		local pm = playerMemory
-		pm.location.surfaceName = surface.name
+		Tools.updateLocation(pm, "surface changed")
 	end,
 
 	onTilePositionChanged = function(playerMemory, tile)
 		--log.trace("onTilePositionChanged position:",tile.position.x,";",tile.position.y,", name:", tile.prototype.name)
 		local pm = playerMemory
-		pm.location.tilePosition             = tile.position
-		pm.location.tileWalkingSpeedModifier = tools.getTileSpeedModifier(tile)
-		pm.location.tileName                 = tile.prototype.name
+		Tools.updateLocation(pm, "position changed")
 	end,
 
 	--- event on_player_changed_surface
 	onPlayerChangedSurface= function (e)
 		--BUG? e.surface_index returns previous surface index!
+		-- local surface = game.get_surface(e.surface_index)
 		local player = game.get_player(e.player_index)
 		local surface = player.surface
 		local surfaceIndex = player.surface.index
-		local pm = playerMemory.get(player)
-		-- local surface = game.get_surface(e.surface_index) --
-		log.trace("onPlayerChangedSurface"," player:", e.player_index, " index:", surfaceIndex,"(",e.surface_index,"), name:", surface.name, " hasCharacter:",player.character~=nil)
+		--Log.trace("onPlayerChangedSurface"," player:", e.player_index, " index:", surfaceIndex,"(",e.surface_index,"), name:", surface.name, " hasCharacter:",player.character~=nil)
+
+		local pm = PlayerMemory.get(player)
 		this.onSurfaceChanged(pm, surface)
 	end,
 
 	--- event on_player_changed_position
 	onPlayerChangedPosition = function (e)
-		-- the event 'on_player_changed_position' seems to be called only one time per tile
+		-- NOTE the event 'on_player_changed_position' seems to be called only one time per tile
 		local player = game.get_player(e.player_index)
-		local pm = playerMemory.get(player)
+		local pm = PlayerMemory.get(player)
 		--if pm.isHovering then return end --UPS optimization, but we need information on orbit!
 
-		if player.character then
-			--log.trace("onPlayerChangedPosition", player.character.position.x,";",player.character.position.y)
-			local surface = player.character.surface
-			local surfaceName = surface.name
-			local hasSurfaceChanged = pm.location.surfaceName ~= surfaceName
-			if hasSurfaceChanged then this.onSurfaceChanged(pm, surface)end
-			local tile = surface.get_tile(player.position)
-			local tilePosition = tile.position
-			local hasTilePositionChanged = hasSurfaceChanged or pm.location.tilePosition.x ~= tilePosition.x or pm.location.tilePosition.y ~= tilePosition.y
-			if hasTilePositionChanged then this.onTilePositionChanged(pm, tile) end
-
-			if player.walking_state.walking then
-				if not pm.isWalking and global.tickFreqency ~= 1 then
-					this.setTick(1, "on_player_changed_position by walking")
-				end
-			else
-				log.trace("onPlayerChangedPosition ", player.walking_state.walking, pm.isWalking, global.tickFreqency, "teleport")
-			end
-		else
-			log.trace("onPlayerChangedPosition ", "no-character")
+		if not player.character then
+			Log.trace("onPlayerChangedPosition ", "no-character")
+			return
 		end
+
+		--Log.trace("onPlayerChangedPosition", player.character.position.x,";",player.character.position.y)
+		local surface = player.surface
+		local tile = surface.get_tile(player.position)
+
+		local hasSurfaceChanged = pm.location.surfaceName ~= player.surface.name
+		local hasTilePositionChanged = pm.location.tilePosition.x ~= tile.position.x or pm.location.tilePosition.y ~= tile.position.y
+
+		if hasSurfaceChanged then this.onSurfaceChanged(pm, player.surface) end
+		if hasTilePositionChanged then this.onTilePositionChanged(pm, tile) end
+
+		if player.walking_state.walking then
+			if not pm.isWalking and global.tickFreqency ~= 1 then
+				this.setTick(1, "on_player_changed_position by walking")
+			end
+			if not pm.isWalking then this.onPlayerTick(e, pm) end
+		else
+			--Log.trace("onPlayerChangedPosition ", player.walking_state.walking, pm.isWalking, global.tickFreqency, "teleport")
+		end
+
 
 		--[[if pm.position.x ~= player.position.x or pm.position.y ~= player.position.y then
 			log.print("onPlayerChangedPosition ",player.position.x,";",player.position.y," (", pm.position.x,";",pm.position.y,")")
@@ -401,25 +418,31 @@ modules.control = {
 
 	--- event on_player_armor_inventory_changed
 	onPlayerArmorInventoryChanged = function (e)
-		log.trace("onPlayerArmorInventoryChanged")
+		Log.trace("onPlayerArmorInventoryChanged")
 		local player = game.get_player(e.player_index)
-		local pm = playerMemory.get(player)
-		local value = tools.getMovementBonus(player)
+		local pm = PlayerMemory.get(player)
+		local value = Tools.getMovementBonus(pm.player)
 		if pm.movementBonus == value then return end
 		this.onMovementBonusChanged(pm)
 	end,
 
 	onMovementBonusChanged = function(playerMemory)
-		log.trace("onMovementBonusChanged")
-	end
+		Log.trace("onMovementBonusChanged")
+	end,
 
+	--- script.on_load
+	onLoad = function()
+		if global.isEnabled then Tools.registerEvents() end
+		script.on_event(defines.events.on_runtime_mod_setting_changed, Settings.onSettingsChanged)
+	end
 }
 
-this = modules.control --init local this
-script.on_init                 (function () log.trace("on_init") end)
-script.on_configuration_changed(function () log.trace("on_configuration_changed") end)
-script.on_load                 (function () log.trace("on_load") end)
+this = Modules.control --init local this
+script.on_init                 (function () Log.trace("on_init") end)
+script.on_load                 (this.onLoad)
+script.on_configuration_changed(function () Log.trace("on_configuration_changed") end)
 script.on_nth_tick             (1, this.onTickOneTime)
+
 --[[
 script.on_event(defines.events.on_player_created, function () log.print("on_player_created") end)
 script.on_event(defines.events.on_player_joined_game, function () log.print("on_player_joined_game") end)

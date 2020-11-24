@@ -1,35 +1,46 @@
-local log      = require("lib/log")
-local colors   = require("lib/colors")
-local calc     = require("modules.calc")
-local settings = require("modules.settings")
-local this = nil
-
 local gameSpeed = nil -- used for updateWalkingSpeed
 
 --- Tools module
 -- @module tools
-modules.tools = {
+Tools = {
 
-	registerForEvents=function()
-		local control = modules.control
-		script.on_event(defines.events.on_player_created                , function () log.print("on_player_created") end)
-		script.on_event(defines.events.on_player_joined_game            , function () log.print("on_player_joined_game") end)
+	registerEvents=function()
+		local control = Modules.control
+		script.on_event(defines.events.on_player_created                , function () Log.print("on_player_created") end)
+		script.on_event(defines.events.on_player_joined_game            , function () Log.print("on_player_joined_game") end)
 
 		script.on_event("Kux-Running_hotkey-ToggleAccelerationMode"     , control.onToggleAccelerationMode)
 		script.on_event("Kux-Running_hotkey-ToggleSpeedMode"            , control.onToggleSpeedMode)
 		script.on_event("Kux-Running_hotkey-ToggleHover"                , control.onToggleHover)
-		script.on_event("Kux-Running_hotkey-ToggleZoom"                 , control.onToggleZoom)
-		script.on_event(defines.events.on_runtime_mod_setting_changed   , settings.onSettingsChanged)
+		script.on_event("Kux-Running_hotkey-ToggleZoom"                 , control.onToggleZoom)		
 		script.on_event(defines.events.on_player_armor_inventory_changed, control.onPlayerArmorInventoryChanged)
 		script.on_event(defines.events.on_player_changed_position       , control.onPlayerChangedPosition)
 		script.on_event(defines.events.on_player_changed_surface        , control.onPlayerChangedSurface)
-		script.on_event(defines.events.on_player_died                   , function () log.print("on_player_died") end)
-		script.on_event(defines.events.on_player_kicked                 , function () log.print("on_player_kicked") end)
-		script.on_event(defines.events.on_player_left_game              , function () log.print("on_player_left_game") end)
-		script.on_event(defines.events.on_player_removed                , function () log.print("on_player_removed") end)
-		script.on_event(defines.events.on_player_respawned              , function () log.print("on_player_respawned") end)
-
+		script.on_event(defines.events.on_player_died                   , function () Log.print("on_player_died") end)
+		script.on_event(defines.events.on_player_kicked                 , function () Log.print("on_player_kicked") end)
+		script.on_event(defines.events.on_player_left_game              , function () Log.print("on_player_left_game") end)
+		script.on_event(defines.events.on_player_removed                , function () Log.print("on_player_removed") end)
+		script.on_event(defines.events.on_player_respawned              , function () Log.print("on_player_respawned") end)
 	end,
+
+	unregisterEvents=function()
+		script.on_event(defines.events.on_player_created                , nil)
+		script.on_event(defines.events.on_player_joined_game            , nil)
+
+		script.on_event("Kux-Running_hotkey-ToggleAccelerationMode"     , nil)
+		script.on_event("Kux-Running_hotkey-ToggleSpeedMode"            , nil)
+		script.on_event("Kux-Running_hotkey-ToggleHover"                , nil)
+		script.on_event("Kux-Running_hotkey-ToggleZoom"                 , nil)
+		script.on_event(defines.events.on_player_armor_inventory_changed, nil)
+		script.on_event(defines.events.on_player_changed_position       , nil)
+		script.on_event(defines.events.on_player_changed_surface        , nil)
+		script.on_event(defines.events.on_player_died                   , nil)
+		script.on_event(defines.events.on_player_kicked                 , nil)
+		script.on_event(defines.events.on_player_left_game              , nil)
+		script.on_event(defines.events.on_player_removed                , nil)
+		script.on_event(defines.events.on_player_respawned              , nil)
+	end,
+
 
 	getSurfaceNameOrDefault = function (player)
 		return player.surface.name
@@ -43,7 +54,7 @@ modules.tools = {
 
 	tryAddMovementEnergy = function (playerMemory,usage)
 		--log.trace("tryAddMovementEnergy")
-		local nauvisMelange = modules.nauvisMelange
+		local nauvisMelange = Modules.nauvisMelange
 		local pm = playerMemory
 		local player = pm.player
 
@@ -56,7 +67,7 @@ modules.tools = {
 					return true
 				else
 					--log.print("nauvisMelange.tryConsumeSpice returns false")
-					player.print("You need more spice to use the "..usage.." mode!", colors.lightred)
+					player.print("You need more spice to use the "..usage.." mode!", Colors.lightred)
 					return false
 				end
 			else --fallback to self consumption
@@ -67,7 +78,7 @@ modules.tools = {
 					pm.movementEnergy = pm.movementEnergy + 1
 					return true
 				else
-					player.print("You need more spice for "..usage.."!", colors.lightred)
+					player.print("You need more spice for "..usage.."!", Colors.lightred)
 					return false
 				end
 			end
@@ -79,10 +90,10 @@ modules.tools = {
 			if(count >= consume) then
 				inventory.remove({name="coal", count=consume})
 				pm.movementEnergy = pm.movementEnergy + 1
-				log.print("use ",consume," ",item)
+				Log.print("use ",consume," ",item)
 				return true
 			else
-				player.print("You need more "..item.." to "..usage.."!", colors.lightred)
+				player.print("You need more "..item.." to "..usage.."!", Colors.lightred)
 				return false
 			end
 		end
@@ -113,12 +124,14 @@ modules.tools = {
 		error("Argument out of range. name:obj ",serpent.block(obj))
 	end,
 
-	tryRestoreCharacterRunningSpeedModifier = function(player)
+	tryRestoreCharacterRunningSpeedModifier = function(playerMemory)
+		local pm = playerMemory
+		local player = pm.player
 		if player.character == nil then
-			player.print("Can not restore character speed modifier. No character.", colors.red)
+			player.print("Can not restore character speed modifier. No character.", Colors.red)
 			return false
 		else
-			player.character_running_speed_modifier = settings.getDefaultCharacterRunningSpeedModifier(player)
+			player.character_running_speed_modifier = Settings.getDefaultCharacterRunningSpeedModifier(player)
 			return true
 		end
 	end,
@@ -132,41 +145,48 @@ modules.tools = {
 		local pm = playerMemory
 		if gameSpeed ~= game.speed then
 			gameSpeed = game.speed
-			settings.check.initialSpeedFactor(pm)
-			settings.check.speedTable(pm)
+			Settings.check.initialSpeedFactor(pm)
+			Settings.check.speedTable(pm)
 		end
 
 		local speedFactor = iif(pm.accelerationMode <= 2, pm.initialSpeedFactor, pm.speedTable[pm.speedMode])
 
 		--pm.movementBonus            = this.getMovementBonus(pm.player)        --set by event
-		--pm.tileWalkingSpeedModifier = this.getTileSpeedModifier(pm.player)	--set by event
-		pm.defaultWalkingSpeed      = calc.walkingSpeed(pm.movementBonus, pm.tileWalkingSpeedModifier, 0)
+		--pm.location.tileWalkingSpeedModifier = this.getTileSpeedModifier(pm.player)	--set by event
+		pm.defaultWalkingSpeed      = Calc.walkingSpeed(pm.movementBonus, pm.location.tileWalkingSpeedModifier, 0)
 
-		pm.initialSpeedFactor       = settings.getInitialSpeedFactor(pm.player)
+		pm.initialSpeedFactor       = Settings.getInitialSpeedFactor(pm.player)
 		pm.initialSpeed             = 0.15 * pm.initialSpeedFactor
 
 		pm.maxWalkingSpeedFactor    = pm.speedTable[pm.speedMode]
 		pm.maxWalkingSpeed          = 0.15 * pm.maxWalkingSpeedFactor
 
-		pm.walkingSpeed             = calc.walkingSpeed(pm.movementBonus, pm.tileWalkingSpeedModifier, speedFactor-1)
-		pm.currentModifier          = calc.speedModifierByFactor(pm.movementBonus, pm.tileWalkingSpeedModifier, speedFactor)
+		pm.walkingSpeed             = Calc.walkingSpeed(pm.movementBonus, pm.location.tileWalkingSpeedModifier, speedFactor-1)
+		pm.currentModifier          = Calc.speedModifierByFactor(pm.movementBonus, pm.location.tileWalkingSpeedModifier, speedFactor)
 	end,
 
-	updateLocation = function (playerMemory) 
-		if this.tryUpdateLocation(playerMemory) then return end
-		if playerMemory.player.character == nil then error("Character requiered!") end
+	updateLocation = function (playerMemory, reason)
+		if Tools.tryUpdateLocation(playerMemory, reason) then return end
+		if playerMemory.player.character == nil then error("Character required!") end
 	end,
 
 	--- Updates playerMemory.location. requires character.
-	tryUpdateLocation = function (playerMemory)
+	tryUpdateLocation = function (playerMemory, reason)
 		local pm = playerMemory
 		local player = pm.player
-		if player.character == nil then return false end
+		--if player.character == nil then return false end
 		local surface = player.surface
 		local tile = surface.get_tile(player.position)
+
+		pm.location.surface = surface
 		pm.location.surfaceName	             = surface.name
+		pm.location.isOrbit                  = string.find(pm.location.surfaceName, "Orbit$") -- Space Exploration TODO maybe localized name?
+
+		pm.location.tile = tile
 		pm.location.tilePosition             = tile.position
 		pm.location.tileWalkingSpeedModifier = tile.prototype.walking_speed_modifier
+		pm.location.tileName                 = tile.prototype.name
+		pm.location.tilePosition             = tile.position
 		pm.location.tileName                 = tile.prototype.name
 		return true
 	end,
@@ -203,14 +223,12 @@ modules.tools = {
 		if orig_type == 'table' then
 			copy = {}
 			for orig_key, orig_value in next, orig, nil do
-				copy[this.deepcopy(orig_key)] = this.deepcopy(orig_value)
+				copy[Tools.deepcopy(orig_key)] = Tools.deepcopy(orig_value)
 			end
-			setmetatable(copy, this.deepcopy(getmetatable(orig)))
+			setmetatable(copy, Tools.deepcopy(getmetatable(orig)))
 		else -- number, string, boolean, etc
 			copy = orig
 		end
 		return copy
 	end
 }
-this = modules.tools -- init local this
-return this

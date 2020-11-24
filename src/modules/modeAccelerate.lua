@@ -1,22 +1,18 @@
-local log      = require("lib/log")
-local tools        = require("modules.tools")
-local calc         = require("modules.calc")
-local settings     = require("modules.settings")
-local playerMemory = require("modules.playerMemory")
-local kuxZooming   = require("modules.kuxZooming")
-local round = tools.round
 local this = nil
 
-modules.modeAccelerate = {
+local walkingStartPosition = nil
+local walkingStartTick = nil
+
+ModeAccelerate = {
 	name = "modeAccelerate",
 
 	onLoaded = function ()
 	end,
 
 	init = function (playerMemory)
-		log.print(this.name, " init() ")
+		Log.print(this.name, " init() ")
 		local pm = playerMemory
-		tools.updateWalkingSpeed(pm)
+		Tools.updateWalkingSpeed(pm)
 		pm.player.character_running_speed_modifier = pm.currentModifier
 	end,
 
@@ -24,26 +20,27 @@ modules.modeAccelerate = {
 		local pm = playerMemory
 		local player = pm.player
 		pm.isWalking = false
-		tools.updateWalkingSpeed(pm)
+		Tools.updateWalkingSpeed(pm)
+		if global.isMultiplayer then pm.speedModifier = -0.99999 end -- TODO experimental, seems not to help
 		pm.player.character_running_speed_modifier = pm.currentModifier
 
-		if static.walkingStartPosition == nil then return end
-		local duration = game.tick - static.walkingStartTick
-		local distance = calc.distance(static.walkingStartPosition, player.position)
-		local speed    = calc.speed(distance,duration)
-		log.print("t:",duration," d:",distance," s:",speed," tiles/tick ")
+		if walkingStartPosition == nil then return end
+		local duration = game.tick - walkingStartTick
+		local distance = Calc.distance(walkingStartPosition, player.position)
+		local speed    = Calc.speed(distance,duration)
+		Log.print("t:",duration," d:",distance," s:",speed," tiles/tick ")
 	end,
 
 	onWalkingStarted = function (playerMemory)
 		local pm = playerMemory
 		local player = pm.player
 		pm.isWalking = true
-		tools.updateWalkingSpeed(pm)
-		pm.acceleratingTick = global.currentTick
+		Tools.updateWalkingSpeed(pm)
+		pm.acceleratingTick = game.tick
 		pm.accelerationDuration = 0
 		pm.isAccelerating = true --must be true
-		static.walkingStartPosition = player.position
-		static.walkingStartTick = game.tick
+		walkingStartPosition = player.position
+		walkingStartTick = game.tick
 	end,
 
 	onTick = function (e, playerMemory)
@@ -58,14 +55,14 @@ modules.modeAccelerate = {
 		elseif isWalkingStarted then this.onWalkingStarted(pm)
 		elseif not isWalking then return end
 
-		if pm.isAccelerating then tools.accelerate(pm) end
+		if pm.isAccelerating then Tools.accelerate(pm) end
 
 		if not global.cheatMode and pm.currentModifier > 0 then
 			local consumption = 0.001 * ticks -- ca 16,6 s / buffer
 
 			if pm.movementEnergy - consumption < 0 then
-				if not tools.tryAddMovementEnergy(pm,"turbo") then
-					modules.control.setSpeedMode(pm, 0)
+				if not Tools.tryAddMovementEnergy(pm,"turbo") then
+					Modules.control.setSpeedMode(pm, 0)
 					consumption = 0
 				end
 			end
@@ -74,10 +71,10 @@ modules.modeAccelerate = {
 		end
 
 		pm.position = player.position
-		pm.currentModifier = calc.speedModifierBySpeed(pm.movementBonus, pm.tileWalkingSpeedModifier, pm.walkingSpeed)
+		pm.currentModifier = Calc.speedModifierBySpeed(pm.movementBonus, pm.location.tileWalkingSpeedModifier, pm.walkingSpeed)
 		player.character_running_speed_modifier = pm.currentModifier
 	end
 }
 
-this = modules.modeAccelerate -- init local this
-return this
+Modules.modeAccelerate = ModeAccelerate
+this = ModeAccelerate -- init local this

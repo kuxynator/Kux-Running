@@ -16,7 +16,7 @@
 - Mode Selection: None, Accelerate, Hover, Zoom
   - Mode: Accelerate
     - smooth progressive acceleration
-    - turbo modus (needs spiece or coal)
+    - turbo mode (needs spice or coal)
     - configurable with F6/F7
 	- configurable speed table *[1.5.0]*
 	- adaption for game speed *[1.5.0]*
@@ -27,10 +27,11 @@
 	- no obstacles. Floating above water, over cliffs, over all objects. 
 	- ignores equipment and floor condition 
   - Mode: Zoom
-    - speed depends on zoom level (requieres [Kux-Zooming](https://mods.factorio.com/mod/Kux-Zooming))
+    - speed depends on zoom level (requires [Kux-Zooming](https://mods.factorio.com/mod/Kux-Zooming))
 	- no obstacles (if hover mode is activated)
 - Toggle Hover mode on/off (default key: H)
 - Toggle Zoom mode on/off (default key: Z) *[1.5.0]*
+- Automatically toggle to Zoome mode and back *[1.6.0]*
 - Use of Spice (if mod [Nauvis Melange](https://mods.factorio.com/mod/nauvis-malange) is active) or coal
 - To activate the old behavior (w/o spice or coal) active Cheat Mode in map settings
 
@@ -38,11 +39,11 @@
 
 ## How to use
 
-You can toogle the mode with keys (H and Z by default)
-H: toogles the Hover mode on/off
-Z: toogles the Zoom mode on/off
+You can toggle the mode with keys (H and Z by default)
+H: toggles the Hover mode on/off
+Z: toggles the Zoom mode on/off
 
-In the player mod settings you can select your prefered mode:
+In the player mod settings you can select your preferred mode:
 - None, 
 - Accelerate (default), 
 - Hover or 
@@ -53,7 +54,7 @@ In the player mod settings you can select your prefered mode:
 use F6/F7 to control the max speed and the acceleration
 
 - Press F6 to toggle the max speed
-    - *`0`*    normal spped (default)
+    - *`0`*    normal speed (default)
     - *`>`*    medium speed
     - *`>>`*   high speed
 - Press F7 to toggle the acceleration mode
@@ -63,7 +64,7 @@ use F6/F7 to control the max speed and the acceleration
 
 In *hover mode* all obstacles and floor conditions will be ignored. 
 You can floating above water, over cliffs, really over all obstacles.
-The equipment (exosceleton) is useless in this mode.
+The equipment (exoskeleton) is useless in this mode.
 
 ### Mode **Zoom**
 

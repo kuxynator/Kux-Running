@@ -1,9 +1,4 @@
-local log        = require("lib.log")
-local tools      = require("modules.tools")
-local kuxZooming = require("modules.kuxZooming")
-local settings   = require("modules.settings")
-local this = nil --modules.playerMemory
-
+local this = nil
 local dataVersion = 10 -- increment if playerMemory_prototype changed
 local playerMemory_prototype = {
 	dataVersion          = dataVersion,
@@ -14,8 +9,8 @@ local playerMemory_prototype = {
 	accelerationMode     = 2,     -- 1 slow, 2 progressive, 3 fast (toggle wwith F7)
 	maxWalkingSpeedFactor = 1, 	  -- calculated later >> pm.speedTable[pm.speedMode]
 	maxWalkingSpeed      = 0.15,  -- calculated later >> 0.15 * pm.maxWalkingSpeedFactor
-	defaultWalkingSpeed  = 0.15,  -- default game walking speed w/o mod modifications. calculated later >> calc.maxSpeed(pm.movementBonus, pm.tileWalkingSpeedModifier, 1)
-	walkingSpeed         = 0.15,  -- current walking speed. calculated later  >> calc.maxSpeed(pm.movementBonus, pm.tileWalkingSpeedModifier, pm.initialSpeedFactor)
+	defaultWalkingSpeed  = 0.15,  -- default game walking speed w/o mod modifications. calculated later >> calc.maxSpeed(pm.movementBonus, pm.location.tileWalkingSpeedModifier, 1)
+	walkingSpeed         = 0.15,  -- current walking speed. calculated later  >> calc.maxSpeed(pm.movementBonus, pm.location.tileWalkingSpeedModifier, pm.initialSpeedFactor)
 	currentModifier      = 0,     -- current modifier, the calulated character_running_speed_modifier
 	isAccelerating       = false,
 	acceleratingTick     = 0,     -- game tick on accelleration start
@@ -47,7 +42,7 @@ local getPlayerMemoryTable=function ()
 end
 
 local new = function (player)
-	local pm = tools.deepcopy(playerMemory_prototype)
+	local pm = Tools.deepcopy(playerMemory_prototype)
 	pm.dataVersion          = dataVersion
 	pm.tableName            = "playerMemory"
 	pm.player               = player
@@ -56,26 +51,28 @@ local new = function (player)
 	pm.accelerationMode     = 2     -- 1 slow, 2 progressive, 3 fast (toggle wwith F7)
 	pm.maxWalkingSpeedFactor = 1 	  -- calculated later >> pm.speedTable[pm.speedMode]
 	pm.maxWalkingSpeed      = 0.15  -- calculated later >> 0.15 * pm.maxWalkingSpeedFactor
-	pm.defaultWalkingSpeed  = 0.15  -- default game walking speed w/o mod modifications. calculated later >> calc.maxSpeed(pm.movementBonus, pm.tileWalkingSpeedModifier, 1)
-	pm.walkingSpeed         = 0.15  -- current walking speed. calculated later  >> calc.maxSpeed(pm.movementBonus, pm.tileWalkingSpeedModifier, pm.initialSpeedFactor)
+	pm.defaultWalkingSpeed  = 0.15  -- default game walking speed w/o mod modifications. calculated later >> calc.maxSpeed(pm.movementBonus, pm.location.tileWalkingSpeedModifier, 1)
+	pm.walkingSpeed         = 0.15  -- current walking speed. calculated later  >> calc.maxSpeed(pm.movementBonus, pm.location.tileWalkingSpeedModifier, pm.initialSpeedFactor)
 	pm.currentModifier      = 0     -- current modifier, the calulated character_running_speed_modifier
 	pm.isAccelerating       = false
 	pm.acceleratingTick     = 0     -- game tick on accelleration start
 	pm.accelerationDuration = 0     -- duration of current acceleration
 	pm.speedModifier        = 0     -- ???
-	settings.check.speedTable(pm)
+	Settings.check.speedTable(pm)
 	pm.speedMode            = 1      -- index for speedTable, toggle with F6
 	pm.renderMode           = player.render_mode
-	pm.zoomFactor           = kuxZooming.getZoomFactor(player)
-	pm.mode                 = settings.getMode(player)
-	pm.initialSpeedFactor   = settings.getInitialSpeedFactor(player)
-	pm.zoomSpeedModificator = settings.getZoomSpeedModificator(player)
+	pm.zoomFactor           = KuxZooming.getZoomFactor(player)
+	pm.mode                 = Settings.getMode(player)
+	pm.initialSpeedFactor   = Settings.getInitialSpeedFactor(player)
+	pm.zoomSpeedModificator = Settings.getZoomSpeedModificator(player)
 	pm.canHover             = false
 	pm.isHovering           = false
 	pm.movementEnergy       = 0
 	pm.hasSpiceInfluence    = false
-	pm.movementBonus        = tools.getMovementBonus(player)
-	tools.updateLocation(pm)
+	--if player.character then
+		pm.movementBonus        = Tools.getMovementBonus(player)
+		Tools.updateLocation(pm)
+	--end
 	return pm
 end
 
@@ -87,7 +84,7 @@ end
 
 --- Player memory module
 -- @module playerMemory
-modules.playerMemory = {
+PlayerMemory = {
 	muduleName = "playerMemory",
 	table = nil, -- initialized in get(), because 'global' is requiered
 
@@ -107,13 +104,12 @@ modules.playerMemory = {
 				if pm[name] == nil then pm[name] = value end
 				if name=="location" then migrate(pm[name], value) end
 			end
-			settings.check.speedTable(pm)
+			Settings.check.speedTable(pm)
 			pm.dataVersion = dataVersion
 		end
 
 		return pm
 	end
 }
-
-this = modules.playerMemory -- init local this
-return this
+Modules.playerMemory = PlayerMemory -- add to modules
+this = PlayerMemory -- init local this
