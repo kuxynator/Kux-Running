@@ -33,6 +33,8 @@ Modules.control = {
 		local player = game.players[event.player_index]
 		local pm = PlayerMemory.get(player)
 		if(pm.mode~="accelerate" and pm.mode ~= "hover") then return end
+		if not pm.player.character then return end
+
 		local v = pm.speedMode
 		if v == 3 then v = 1 else v = v + 1 end
 		this.setSpeedMode(pm, v)
@@ -52,6 +54,7 @@ Modules.control = {
 		local player = game.players[event.player_index]
 		local pm = PlayerMemory.get(player)
 		if pm.mode~="accelerate" and pm.mode ~= "hover" then return end
+		if not pm.player.character then return end
 
 		local newMode = pm.accelerationMode
 		if newMode == 3 then newMode = 1 else newMode = newMode + 1 end
@@ -75,6 +78,8 @@ Modules.control = {
 			pm = eventOrPlayerMemory --TODO asuming PlayerMemory
 			player = pm.player
 		end
+
+		if not pm.player.character then return end
 
 		if pm.mode == "zoom" then
 			if pm.canHover then
@@ -120,7 +125,8 @@ Modules.control = {
 		Log.print("onToggleZoom(..)")
 		local pm = eventOrPlayerMemory
 		if eventOrPlayerMemory.input_name ~= nil then pm = PlayerMemory.get(game.get_player(eventOrPlayerMemory.player_index)) end
-		
+		if not pm.player.character then return end
+
 		if pm.mode == "zoom" then
 			-- turn off zoom mode
 			if pm.canHover then
@@ -289,7 +295,6 @@ Modules.control = {
 		Log.trace("initPlayer() ",playerMemory.player.index," ",reason)
 		local pm = playerMemory
 		local player = pm.player
-
 		if(not player.connected or player.character == nil) then return end
 
 		pm.isWalking = player.walking_state.walking

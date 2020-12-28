@@ -37,7 +37,7 @@ Log = {
 	end,
 
 	trace = function(...)
-		if not data.isEnabled then return end
+		--if not data.isEnabled then return end
 		local msg = script.mod_name..": "
 		for i = 1, select("#",...) do
 			local v = select(i,...)

@@ -59,6 +59,17 @@ ModeZoom = {
 			return
 		end
 		pm.position = {x=pm.position.x + xo, y=pm.position.y + yo}
+
+		local tileName = Tools.getTileName(player.surface.get_tile(pm.position))
+		if tileName=="out-of-factory" 	-- Factorissimo2
+		or tileName=="underground-wall" -- Surfaces_Reloaded	"surfacedmod-cavern-*""
+		or tileName=="sky-void" 		-- Surfaces_Reloaded	"surfacedmod-platform-*""
+		or tileName=="out-of-map" 		-- base
+		then
+			pm.position = player.position
+			return
+		end
+
 		player.teleport(pm.position)
 	end
 }
