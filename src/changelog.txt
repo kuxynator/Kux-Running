@@ -3,11 +3,13 @@ Version: 2.6.3
 Date: 2020-12-28
   Bugfixes:
     - add character detection on the hotkeys
+    - disable auto toogle if setting is 0
 ---------------------------------------------------------------------------------------------------
 Version: 1.6.3
 Date: 2020-12-28
   Bugfixes:
     - add character detection on the hotkeys
+    - disable auto toogle if setting is 0
 ---------------------------------------------------------------------------------------------------
 Version: 2.6.2
 Date: 2020-12-26

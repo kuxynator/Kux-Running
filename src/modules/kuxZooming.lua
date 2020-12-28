@@ -37,13 +37,22 @@ KuxZooming = {
 
 			if not player.character or renderMode ~= defines.render_mode.game then return end
 
-			if pm.mode == "zoom" and not pm.canHover and zoomFactor > Settings.getZoomHoverModeAutoToggleFactor(player) then
+			if pm.mode == "zoom" 
+				and not pm.canHover 
+				and Settings.getZoomHoverModeAutoToggleFactor(player) > 0
+				and	zoomFactor > Settings.getZoomHoverModeAutoToggleFactor(player)
+			then
 				Modules.control.onToggleHover(pm)
-			end
-			if pm.mode == "zoom" and zoomFactor > Settings.getZoomModeAutoToggleFactor(player) then
+			elseif pm.mode == "zoom"
+				and	Settings.getZoomModeAutoToggleFactor(player) > 0
+				and zoomFactor > Settings.getZoomModeAutoToggleFactor(player)
+			then
 				Modules.control.onToggleZoom(pm)
 				return
-			elseif (pm.mode == "accelerate" or pm.mode == "hover") and zoomFactor < Settings.getZoomModeAutoToggleFactor(player) then
+			elseif (pm.mode == "accelerate" or pm.mode == "hover")
+				and Settings.getZoomModeAutoToggleFactor(player) > 0
+				and	zoomFactor < Settings.getZoomModeAutoToggleFactor(player)
+			then
 				Modules.control.onToggleZoom(pm)
 			end
 
