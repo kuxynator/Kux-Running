@@ -92,6 +92,7 @@ Modules.control = {
 				player.print("Zoom+Hover mode")
 				FlyingText.create(pm.player,"Zoom+Hover")
 			end
+			pm.isHovering = pm.canHover
 			return
 		end
 

@@ -63,6 +63,7 @@ ModeAccelerate = {
 			if pm.movementEnergy - consumption < 0 then
 				if not Tools.tryAddMovementEnergy(pm,"turbo") then
 					Modules.control.setSpeedMode(pm, 0)
+					Tools.updateWalkingSpeed(pm)
 					consumption = 0
 				end
 			end
