@@ -1,5 +1,8 @@
 # Kuxynator's Running Mod
 
+## Story
+After crashing on the planet, you will find a few capsules of amphitamins in the remains of the spaceship. Use them wisely! Later you can also consume spice.
+
 > Walk with *smooth acceleration* or cheat something:
     sprint in *turbo mode*,
     *be faster* if you *zoom out*
@@ -30,12 +33,10 @@
     - speed depends on zoom level (requires [Kux-Zooming](https://mods.factorio.com/mod/Kux-Zooming))
 	- no obstacles (if hover mode is activated)
 - Toggle Hover mode on/off (default key: H)
-- Toggle Zoom mode on/off (default key: Z) *[1.5.0]*
-- Automatically toggle to Zoome mode and back *[1.6.0]*
-- Use of Spice (if mod [Nauvis Melange](https://mods.factorio.com/mod/nauvis-malange) is active) or coal
-- To activate the old behavior (w/o spice or coal) active Cheat Mode in map settings
-
-*In a later version of this mod the modes will be less cheaty. You have to research the technologies first and need special fuel for turbo.*
+- Toggle Zoom mode on/off (default key: Z) *[x.5.0]*
+- Automatically toggle to Zoome mode and back *[x.6.0]*
+- Use of Spice (if mod [Nauvis Melange](https://mods.factorio.com/mod/nauvis-malange) is active) or amphitamins *[x.7.0]*
+- To activate the old behavior (w/o spice or amphitamins) active Cheat Mode in map settings
 
 ## How to use
 
@@ -125,3 +126,25 @@ In the last years I had to play only with one them. Now I am finally able to use
 Inspired by two fabulous mods
 - RunSpeedToggle by Omnifarious 
 - progressive Running (smooth acceleration) by binbinhfr 
+
+## Contact
+
+- [Mod Portal](https://mods.factorio.com/mod/Kux-Running/discussion)
+- [Discord](https://discord.gg/BWUTaJy)
+- [Facebook](https://www.facebook.com/Kuxynator.Factorio)
+- [GitHub](https://github.com/kuxynator/Kux-Running)
+
+*I am not always present everywhere but you can leave a message. Sometime I will read it ;-)*
+
+## Version number scheme
+
+Major.Minor.Patch scheme is changed to Factorio.Feature.Patch
+__*Major (Factorio Version)*__
+- 1: Factorio 1.0 (0.18)
+- 2: Factorio 1.1
+__*Minor (Feature Version)*__
+- Feature releases
+- consecutively numbered
+__*Patch*__
+- Bugfix releases
+- consecutively numbered

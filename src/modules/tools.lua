@@ -83,17 +83,17 @@ Tools = {
 				end
 			end
 		else
-			local item = "coal"
+			local itemName = "movement-fuel"
 			local inventory = player.get_main_inventory()
-			local count = inventory.get_item_count(item)
-			local consume = 50
+			local count = inventory.get_item_count(itemName)
+			local consume = 1
 			if(count >= consume) then
-				inventory.remove({name="coal", count=consume})
-				pm.movementEnergy = pm.movementEnergy + 1
-				Log.print("use ",consume," ",item)
+				inventory.remove({name=itemName, count=consume})
+				pm.movementEnergy = pm.movementEnergy + 1/30
+				print({"","use "..consume.." ",{itemName}})
 				return true
 			else
-				player.print("You need more "..item.." to "..usage.."!", Colors.lightred)
+				player.print({"","You need more ",{itemName}," to "..usage.."!"}, Colors.lightred)		
 				return false
 			end
 		end
@@ -230,5 +230,12 @@ Tools = {
 			copy = orig
 		end
 		return copy
+	end,
+
+	setSpaceshipInventory=function ()
+		local spaceship = game.surfaces["nauvis"].find_entity("crash-site-spaceship", {-5,-6})
+		local inventory = spaceship.get_inventory(defines.inventory.chest)
+		inventory.insert({name="movement-fuel", count=1000})
+		print("movement-fuel added to crash-site-spaceship")
 	end
 }

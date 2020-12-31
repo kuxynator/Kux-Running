@@ -108,7 +108,7 @@ data:extend({
         type = "double-setting",
         name = "Kux-Running_ZoomSpeedModificator",
         setting_type = "runtime-per-user",
-        default_value = 1,
+        default_value = 3,
         maximum_value = 10,
         minimum_value = 0.1,
         order = "c01"

@@ -159,8 +159,26 @@ Modules.control = {
 	end,
 
 	onTickOneTime = function (e)
-		script.on_nth_tick(nil)
+		script.on_nth_tick(1,nil)
 		this.onLoaded(e)
+	end,
+
+	onTick60 = function (e)
+		if not global.states.firstTimePlayerCharacterCreated then
+			for _, player in pairs(game.connected_players) do
+				if player.character then
+					global.states.firstTimePlayerCharacterCreated = true
+					this.onfirstTimePlayerCharacterCreated(player)
+				end
+			end
+		end
+		if global.states.firstTimePlayerCharacterCreated then
+			script.on_nth_tick(60,nil)
+		end
+	end,
+
+	onfirstTimePlayerCharacterCreated = function (player)
+		Tools.setSpaceshipInventory()
 	end,
 
 	onLoaded = function(e)
@@ -179,7 +197,7 @@ Modules.control = {
 		script.on_event(defines.events.on_runtime_mod_setting_changed, Settings.onSettingsChanged)
 
 		if not global.isEnabled then return end
-
+		
 		this.enable()
 		this.onTick(e)
 	end,
@@ -236,6 +254,7 @@ Modules.control = {
 		if not global.cheatMode and pm.isHovering then
 			local consumption = 0.0002778 * ticks -- 1 min / buffer
 			if pm.movementEnergy - consumption < 0 then
+				print("consumption: "..consumption,"pm.movementEnergy: "..pm.movementEnergy)
 				if not Tools.tryAddMovementEnergy(pm,"hover") then
 					this.onToggleHover(pm) -- toggle off
 				end
@@ -256,7 +275,7 @@ Modules.control = {
 	setTick = function(n)
 		if n == 10 then n = 1 end --hack for test
 		if(global.tickFreqency == n) then return end
-		script.on_nth_tick(nil)		
+		if(n==0 and global.tickFreqency > 0) then script.on_nth_tick(global.tickFreqency, nil) end
 		if n > 0 then script.on_nth_tick(n, this.onTick) end
 		global.tickFreqency = n
 		global.nthTick = 0
@@ -316,6 +335,7 @@ Modules.control = {
 		elseif(pm.mode == "hover"     ) then ModeHover.init(pm)
 		elseif(pm.mode == "zoom"      ) then ModeZoom.init(pm) end
 
+		if pm.movementEnergy and pm.movementEnergy < 0 then pm.movementEnergy = 0 end --BUGFIX for version older then x.2.7
 		pm.isInitialized = true
 	end,
 
@@ -440,14 +460,30 @@ Modules.control = {
 	onLoad = function()
 		if global.isEnabled then Tools.registerEvents() end
 		script.on_event(defines.events.on_runtime_mod_setting_changed, Settings.onSettingsChanged)
+	end,
+
+	--- script.on_init
+	onInit = function ()
+		Log.trace("on_init")
+		this.initGlobals()
+	end,
+
+	onConfigurationChanged=function()
+		Log.trace("on_configuration_changed")
+		this.initGlobals()
+	end,
+
+	initGlobals=function ()
+		global.states = global.states or {}
 	end
 }
 
 this = Modules.control --init local this
-script.on_init                 (function () Log.trace("on_init") end)
+script.on_init                 (this.onInit)
 script.on_load                 (this.onLoad)
-script.on_configuration_changed(function () Log.trace("on_configuration_changed") end)
+script.on_configuration_changed(this.onConfigurationChanged)
 script.on_nth_tick             (1, this.onTickOneTime)
+script.on_nth_tick             (60, this.onTick60)
 
 --[[
 script.on_event(defines.events.on_player_created, function () log.print("on_player_created") end)

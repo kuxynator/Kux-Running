@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.7.0
+Date: 2020-12-31
+  Bugfixes:
+    - add new consumption item 'Amphetamine' used for turbo and hover instead of pure coal
+---------------------------------------------------------------------------------------------------
+Version: 1.7.0
+Date: 2020-12-31
+  Features:
+    - add new consumption item 'Amphetamine' used for turbo and hover instead of pure coal
+---------------------------------------------------------------------------------------------------
 Version: 2.6.4
 Date: 2020-12-28
   Bugfixes:
