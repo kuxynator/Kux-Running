@@ -1,10 +1,20 @@
 ---------------------------------------------------------------------------------------------------
-Version: 2.7.0
+Version: 2.7.2
+Date: 2021-01-02
+  Bugfixes:
+    - fix an error when the spaceship has been removed. but you will not get the free items.
+---------------------------------------------------------------------------------------------------
+Version: 1.7.2
+Date: 2021-01-02
+  Bugfixes:
+    - fix an error when the spaceship has been removed. but you will not get the free items.
+---------------------------------------------------------------------------------------------------
+Version: 2.7.1
 Date: 2021-01-02
   Bugfixes:
       - try to fix an exception (Kux-Running::on_player_changed_surface (ID 51)) in connection with space exploration (can not reproduce)
 ---------------------------------------------------------------------------------------------------
-Version: 1.7.0
+Version: 1.7.1
 Date: 2021-01-02
   Bugfixes:
       - try to fix an exception (Kux-Running::on_player_changed_surface (ID 51)) in connection with space exploration (can not reproduce)

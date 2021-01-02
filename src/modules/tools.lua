@@ -236,8 +236,14 @@ Tools = {
 
 	setSpaceshipInventory=function ()
 		local spaceship = game.surfaces["nauvis"].find_entity("crash-site-spaceship", {-5,-6})
-		local inventory = spaceship.get_inventory(defines.inventory.chest)
-		inventory.insert({name="movement-fuel", count=1000})
-		print("movement-fuel added to crash-site-spaceship")
+		--TODO find spaceship at another position
+		--TODO place in player inventory
+		if spaceship then
+			local inventory = spaceship.get_inventory(defines.inventory.chest)
+			inventory.insert({name="movement-fuel", count=1000})
+			--print("movement-fuel added to crash-site-spaceship")
+		else
+			--print("crash-site-spaceship not found. can not fill inventory.")
+		end
 	end
 }
