@@ -1,5 +1,15 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.7.0
+Date: 2021-01-02
+  Bugfixes:
+      - try to fix an exception (Kux-Running::on_player_changed_surface (ID 51)) in connection with space exploration (can not reproduce)
+---------------------------------------------------------------------------------------------------
+Version: 1.7.0
+Date: 2021-01-02
+  Bugfixes:
+      - try to fix an exception (Kux-Running::on_player_changed_surface (ID 51)) in connection with space exploration (can not reproduce)
+---------------------------------------------------------------------------------------------------
+Version: 2.7.0
 Date: 2020-12-31
   Bugfixes:
     - add new consumption item 'Amphetamine' used for turbo and hover instead of pure coal

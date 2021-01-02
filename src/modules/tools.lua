@@ -176,18 +176,20 @@ Tools = {
 		local player = pm.player
 		--if player.character == nil then return false end
 		local surface = player.surface
-		local tile = surface.get_tile(player.position)
 
 		pm.location.surface = surface
 		pm.location.surfaceName	             = surface.name
 		pm.location.isOrbit                  = string.find(pm.location.surfaceName, "Orbit$") -- Space Exploration TODO maybe localized name?
 
-		pm.location.tile = tile
-		pm.location.tilePosition             = tile.position
-		pm.location.tileWalkingSpeedModifier = tile.prototype.walking_speed_modifier
-		pm.location.tileName                 = tile.prototype.name
-		pm.location.tilePosition             = tile.position
-		pm.location.tileName                 = tile.prototype.name
+		local tile = surface.get_tile(player.position)
+		if tile and tile.valid then -- workaround "LuaTile API call when LuaTile was invalid." (SE Univers Explorer?)
+			pm.location.tile = tile
+			pm.location.tilePosition             = tile.position
+			pm.location.tileWalkingSpeedModifier = tile.prototype.walking_speed_modifier
+			pm.location.tileName                 = tile.prototype.name
+			pm.location.tilePosition             = tile.position
+			pm.location.tileName                 = tile.prototype.name
+		end
 		return true
 	end,
 
